@@ -16,9 +16,9 @@ _Avoid_: terminal, session
 The process group a terminal is currently showing. Processes in it are visible in their terminal already and are not background jobs.
 _Avoid_: active, attached
 
-**Ignored command**:
-A command line the user chose to hide. Every background job with the same command line is ignored, and ignored jobs show only when the user asks for them.
-_Avoid_: hidden, muted, excluded
+**Ignore rule**:
+A glob pattern matched against a background job's full command line. A matching job is ignored and shows only when the user asks for ignored jobs. Ignoring a single job adds a rule that matches exactly its command line.
+_Avoid_: filter, hidden, muted, excluded
 
 **Job presentation**:
 The view of a background job used by the window and menu bar. It adds the display name, command line, working folder, total memory, and ignored state to the discovered process facts, keeping each one as a separate fact.

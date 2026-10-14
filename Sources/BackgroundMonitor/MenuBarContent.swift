@@ -23,9 +23,7 @@ struct MenuBarContent: View {
                     Button("Kill", role: .destructive) { viewModel.kill(job) }
                     Button("Force Kill", role: .destructive) { viewModel.kill(job, force: true) }
                     Divider()
-                    Button(job.isIgnored ? "Unignore" : "Ignore") {
-                        viewModel.setIgnored(job, !job.isIgnored)
-                    }
+                    Button("Ignore") { viewModel.ignore(job) }
                 }
             }
         }

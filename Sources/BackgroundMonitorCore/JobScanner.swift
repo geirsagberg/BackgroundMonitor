@@ -1,7 +1,7 @@
 import Foundation
 
 public enum JobScanner {
-    public static func scan(ignoredCommands: Set<String>) -> [JobPresentation] {
+    public static func scan(ignoreRules: IgnoreRules) -> [JobPresentation] {
         let processes = ProcessTable.snapshot()
         let jobs = BackgroundJobFinder.jobs(in: processes, userID: getuid())
 
@@ -17,7 +17,7 @@ public enum JobScanner {
                 command: command,
                 directory: ProcessTable.workingDirectory(of: job.process.pid),
                 memoryBytes: memory,
-                isIgnored: ignoredCommands.contains(command)
+                isIgnored: ignoreRules.matches(command)
             )
         }
     }

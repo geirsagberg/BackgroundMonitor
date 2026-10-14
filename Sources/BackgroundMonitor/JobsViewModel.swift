@@ -24,14 +24,15 @@ final class JobsViewModel: ObservableObject {
         didSet { UserDefaults.standard.set(sortOrder.rawValue, forKey: "sortOrder") }
     }
     @Published var alertMessage: AlertMessage?
+    @Published var showsIgnoreRules = false
+    @Published private(set) var ignoreRules: IgnoreRules
 
-    private var ignoredCommands: Set<String>
     private let ignoreStore: IgnoreStore
     private var refreshTask: Task<Void, Never>?
 
     init(ignoreStore: IgnoreStore = IgnoreStore()) {
         self.ignoreStore = ignoreStore
-        self.ignoredCommands = ignoreStore.load()
+        self.ignoreRules = IgnoreRules(patterns: ignoreStore.load())
         self.sortOrder = UserDefaults.standard.string(forKey: "sortOrder")
             .flatMap(JobSortOrder.init(rawValue:)) ?? .name
 
@@ -66,9 +67,9 @@ final class JobsViewModel: ObservableObject {
     }
 
     func refresh() async {
-        let ignoredCommands = ignoredCommands
+        let ignoreRules = ignoreRules
         let scannedJobs = await Task.detached(priority: .utility) {
-            JobScanner.scan(ignoredCommands: ignoredCommands)
+            JobScanner.scan(ignoreRules: ignoreRules)
         }.value
 
         if scannedJobs != jobs {
@@ -93,13 +94,41 @@ final class JobsViewModel: ObservableObject {
         }
     }
 
-    func setIgnored(_ presentation: JobPresentation, _ isIgnored: Bool) {
-        if isIgnored {
-            ignoredCommands.insert(presentation.command)
-        } else {
-            ignoredCommands.remove(presentation.command)
-        }
-        ignoreStore.save(ignoredCommands)
+    var sortedIgnorePatterns: [String] {
+        ignoreRules.patterns.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+    }
+
+    func ignore(_ presentation: JobPresentation) {
+        addIgnorePattern(IgnoreRules.exactPattern(for: presentation.command))
+    }
+
+    /// True when the job is ignored by its own exact rule rather than only by a broader pattern.
+    func canUnignore(_ presentation: JobPresentation) -> Bool {
+        ignoreRules.patterns.contains(IgnoreRules.exactPattern(for: presentation.command))
+    }
+
+    func unignore(_ presentation: JobPresentation) {
+        removeIgnorePattern(IgnoreRules.exactPattern(for: presentation.command))
+    }
+
+    func addIgnorePattern(_ pattern: String) {
+        let trimmed = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        ignoreRules.patterns.insert(trimmed)
+        saveIgnoreRules()
+    }
+
+    func removeIgnorePattern(_ pattern: String) {
+        ignoreRules.patterns.remove(pattern)
+        saveIgnoreRules()
+    }
+
+    func matchCount(for pattern: String) -> Int {
+        jobs.filter { IgnoreRules.pattern(pattern, matches: $0.command) }.count
+    }
+
+    private func saveIgnoreRules() {
+        ignoreStore.save(ignoreRules.patterns)
         Task { await refresh() }
     }
 

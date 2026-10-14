@@ -122,3 +122,21 @@ final class BackgroundJobFinderTests: XCTestCase {
         XCTAssertEqual(JobPresentation.abbreviatingHome("/Users/meg", home: "/Users/me"), "/Users/meg")
     }
 }
+
+final class IgnoreRulesTests: XCTestCase {
+    func testGlobMatchesAcrossSlashesAndSpaces() {
+        let rules = IgnoreRules(patterns: ["*gitstatusd*"])
+
+        XCTAssertTrue(rules.matches("/Users/me/.cache/gitstatus/gitstatusd-darwin-arm64 -G v1.5.4"))
+        XCTAssertFalse(rules.matches("bun run dev"))
+    }
+
+    func testExactPatternMatchesOnlyThatCommand() {
+        let command = "node [watch] *.ts?"
+        let rules = IgnoreRules(patterns: [IgnoreRules.exactPattern(for: command)])
+
+        XCTAssertTrue(rules.matches(command))
+        XCTAssertFalse(rules.matches("node w *.ts?"))
+        XCTAssertFalse(rules.matches("node [watch] *.ts? --verbose"))
+    }
+}

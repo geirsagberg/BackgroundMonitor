@@ -110,8 +110,11 @@ Tonal layering, no shadows. Rows are a control background with a one-pixel separ
 
 ### Buttons
 - **Kill:** Bordered, destructive role, primary-text label with a red `stop.circle` symbol. Sends SIGTERM to the job and its children.
-- **More actions:** Borderless `ellipsis.circle` menu with Force Kill, Ignore or Unignore, Copy Command, and Show Folder in Finder.
-- **Header:** A segmented Name / PID sort picker and a "Show ignored" switch.
+- **More actions:** Borderless `ellipsis.circle` menu with Force Kill, Ignore or Unignore, Copy Command, and Show Folder in Finder. A job ignored only by a broader pattern offers Edit Ignore Rules… instead of Unignore.
+- **Header:** A segmented Name / PID sort picker, a "Show ignored" switch, and an `eye.slash` button that opens the Ignore Rules sheet.
+
+### Ignore Rules Sheet
+A native sheet with a monospaced pattern field, an Add button, and a list of rules showing how many running jobs each one matches.
 
 ### Badges
 Compact capsules with secondary text and an optional SF Symbol. Badges are informational only.

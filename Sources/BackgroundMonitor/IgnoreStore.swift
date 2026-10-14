@@ -1,6 +1,6 @@
 import Foundation
 
-/// Persists ignored commands in `~/Library/Application Support/BackgroundMonitor/Ignored.json`.
+/// Persists ignore patterns in `~/Library/Application Support/BackgroundMonitor/Ignored.json`.
 final class IgnoreStore {
     private let fileURL: URL
 
@@ -15,18 +15,18 @@ final class IgnoreStore {
 
     func load() -> Set<String> {
         guard let data = try? Data(contentsOf: fileURL),
-              let commands = try? JSONDecoder().decode([String].self, from: data)
+              let patterns = try? JSONDecoder().decode([String].self, from: data)
         else {
             return []
         }
 
-        return Set(commands)
+        return Set(patterns)
     }
 
-    func save(_ commands: Set<String>) {
+    func save(_ patterns: Set<String>) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
         // The ignore list should never stop the monitor from working.
-        try? encoder.encode(commands.sorted()).write(to: fileURL, options: .atomic)
+        try? encoder.encode(patterns.sorted()).write(to: fileURL, options: .atomic)
     }
 }

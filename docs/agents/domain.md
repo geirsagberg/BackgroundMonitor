@@ -29,7 +29,7 @@ Key terms include:
 - **Background job**
 - **Shell**
 - **Terminal foreground**
-- **Ignored command**
+- **Ignore rule**
 - **Job presentation**
 
 If the concept needed isn't in the glossary yet, note the gap rather than inventing new project vocabulary casually.

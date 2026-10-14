@@ -36,6 +36,16 @@ struct ContentView: View {
                     .controlSize(.small)
                     .fixedSize()
                     .help("Show processes you have ignored")
+
+                Button {
+                    viewModel.showsIgnoreRules = true
+                } label: {
+                    Image(systemName: "eye.slash")
+                        .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.bordered)
+                .help("Ignore rules")
+                .accessibilityLabel("Ignore rules")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -64,6 +74,9 @@ struct ContentView: View {
         .background(Color(nsColor: .windowBackgroundColor))
         .onReceive(NotificationCenter.default.publisher(for: .focusJobFilter)) { _ in
             isSearchFieldFocused = true
+        }
+        .sheet(isPresented: $viewModel.showsIgnoreRules) {
+            IgnoreRulesView(viewModel: viewModel)
         }
         .alert(item: $viewModel.alertMessage) { message in
             Alert(
@@ -221,10 +234,24 @@ private struct JobRow: View {
 
                 Divider()
 
-                Button {
-                    viewModel.setIgnored(job, !job.isIgnored)
-                } label: {
-                    Label(job.isIgnored ? "Unignore" : "Ignore", systemImage: job.isIgnored ? "eye" : "eye.slash")
+                if !job.isIgnored {
+                    Button {
+                        viewModel.ignore(job)
+                    } label: {
+                        Label("Ignore", systemImage: "eye.slash")
+                    }
+                } else if viewModel.canUnignore(job) {
+                    Button {
+                        viewModel.unignore(job)
+                    } label: {
+                        Label("Unignore", systemImage: "eye")
+                    }
+                } else {
+                    Button {
+                        viewModel.showsIgnoreRules = true
+                    } label: {
+                        Label("Edit Ignore Rules…", systemImage: "eye.slash")
+                    }
                 }
 
                 Button {
