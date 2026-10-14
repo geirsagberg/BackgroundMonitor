@@ -92,6 +92,7 @@ private struct FilterField: View {
             TextField("Filter processes", text: $text)
                 .textFieldStyle(.plain)
                 .focused(isFocused)
+                .accessibilityHint("Filters by name, command, folder, PID, or terminal.")
 
             if !text.isEmpty {
                 Button {
@@ -180,11 +181,11 @@ private struct JobRow: View {
 
                 HStack(spacing: 6) {
                     TimelineView(.periodic(from: .now, by: 30)) { context in
-                        Badge(text: job.uptimeText(now: context.date), systemImage: "clock")
+                        Badge(text: job.uptimeText(now: context.date), systemImage: "clock", accessibilityLabel: "Uptime")
                     }
-                    Badge(text: job.memoryText, systemImage: "memorychip")
+                    Badge(text: job.memoryText, systemImage: "memorychip", accessibilityLabel: "Memory")
                     Badge(text: "PID \(job.pid)")
-                    Badge(text: job.terminalText)
+                    Badge(text: job.terminalText, accessibilityLabel: "Terminal")
                     if let processCount = job.processCountText {
                         Badge(text: processCount)
                     }
@@ -196,37 +197,52 @@ private struct JobRow: View {
 
             Spacer(minLength: 4)
 
-            Button("Kill") {
+            Button(role: .destructive) {
                 viewModel.kill(job)
+            } label: {
+                Label("Kill", systemImage: "stop.circle")
+                    .foregroundStyle(.red)
             }
-            .help("Send SIGTERM to the process and its children")
+            .help("Send SIGTERM to \(job.name) and its children")
+            .accessibilityLabel("Kill \(job.name)")
 
             Menu {
-                Button("Force Kill") {
+                Button(role: .destructive) {
                     viewModel.kill(job, force: true)
+                } label: {
+                    Label("Force Kill", systemImage: "xmark.octagon")
                 }
-                .help("Send SIGKILL to the process and its children")
+                .help("Send SIGKILL to \(job.name) and its children")
 
                 Divider()
 
-                Button(job.isIgnored ? "Unignore" : "Ignore") {
+                Button {
                     viewModel.setIgnored(job, !job.isIgnored)
+                } label: {
+                    Label(job.isIgnored ? "Unignore" : "Ignore", systemImage: job.isIgnored ? "eye" : "eye.slash")
                 }
 
-                Button("Copy Command") {
+                Button {
                     viewModel.copyCommand(job)
+                } label: {
+                    Label("Copy Command", systemImage: "doc.on.doc")
                 }
 
-                Button("Show Folder in Finder") {
+                Button {
                     viewModel.revealDirectory(job)
+                } label: {
+                    Label("Show Folder in Finder", systemImage: "folder")
                 }
                 .disabled(job.directory == nil)
             } label: {
-                Image(systemName: "ellipsis")
+                Image(systemName: "ellipsis.circle")
+                    .frame(width: 26, height: 26)
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
             .fixedSize()
+            .help("More actions")
+            .accessibilityLabel("More actions for \(job.name)")
         }
         .padding(10)
         .background(
@@ -238,17 +254,21 @@ private struct JobRow: View {
                 .stroke(Color(nsColor: .separatorColor).opacity(0.35), lineWidth: 1)
         )
         .opacity(job.isIgnored ? 0.6 : 1)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Background process \(job.name)")
     }
 }
 
 private struct Badge: View {
     let text: String
     var systemImage: String?
+    var accessibilityLabel: String?
 
     var body: some View {
         HStack(spacing: 3) {
             if let systemImage {
                 Image(systemName: systemImage)
+                    .accessibilityHidden(true)
             }
             Text(text)
         }
@@ -262,5 +282,8 @@ private struct Badge: View {
         )
         .lineLimit(1)
         .fixedSize()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel ?? text)
+        .accessibilityValue(accessibilityLabel == nil ? "" : text)
     }
 }
