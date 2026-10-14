@@ -200,8 +200,13 @@ private struct JobRow: View {
             Button(role: .destructive) {
                 viewModel.kill(job)
             } label: {
-                Label("Kill", systemImage: "stop.circle")
-                    .foregroundStyle(.red)
+                // Only the icon is red; red text on a bordered button is hard to read in dark mode.
+                Label {
+                    Text("Kill")
+                } icon: {
+                    Image(systemName: "stop.circle")
+                        .foregroundStyle(.red)
+                }
             }
             .help("Send SIGTERM to \(job.name) and its children")
             .accessibilityLabel("Kill \(job.name)")

@@ -83,7 +83,7 @@ It is not Activity Monitor. It lists only background jobs the user started from 
 
 The palette is the native macOS system palette. Semantic platform colors do the work.
 
-- **Destructive Red**: Used only for Kill. In SwiftUI, use a destructive button role with `.foregroundStyle(.red)` and an explicit label.
+- **Destructive Red**: Used only for Kill. In SwiftUI, use a destructive button role, a red icon, and an explicit label in primary text. Red text on a bordered button has too little contrast in dark mode.
 - **Window Background**: `Color(nsColor: .windowBackgroundColor)`.
 - **Control Background**: Job rows and the filter field, through `Color(nsColor: .controlBackgroundColor)`.
 - **Primary and Secondary Text**: `.foregroundStyle(.primary)` for names; `.secondary` for folders, commands, counts, and badges.
@@ -109,7 +109,7 @@ Tonal layering, no shadows. Rows are a control background with a one-pixel separ
 ## 5. Components
 
 ### Buttons
-- **Kill:** Bordered, destructive role, red label with a `stop.circle` symbol. Sends SIGTERM to the job and its children.
+- **Kill:** Bordered, destructive role, primary-text label with a red `stop.circle` symbol. Sends SIGTERM to the job and its children.
 - **More actions:** Borderless `ellipsis.circle` menu with Force Kill, Ignore or Unignore, Copy Command, and Show Folder in Finder.
 - **Header:** A segmented Name / PID sort picker and a "Show ignored" switch.
 
