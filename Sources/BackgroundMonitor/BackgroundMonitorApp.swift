@@ -4,11 +4,12 @@ import SwiftUI
 @main
 struct BackgroundMonitorApp: App {
     @StateObject private var viewModel = JobsViewModel()
+    @StateObject private var tmuxViewModel = TmuxViewModel()
     @StateObject private var mainWindowLifecycle = MainWindowLifecycle()
 
     var body: some Scene {
         Window("BackgroundMonitor", id: "main") {
-            ContentView(viewModel: viewModel)
+            ContentView(viewModel: viewModel, tmuxViewModel: tmuxViewModel)
                 .frame(minWidth: 600, minHeight: 360)
                 .background(MainWindowLifecycleObserver(lifecycle: mainWindowLifecycle))
         }
@@ -24,7 +25,7 @@ struct BackgroundMonitorApp: App {
         }
 
         MenuBarExtra("BackgroundMonitor", systemImage: "terminal") {
-            MenuBarContent(viewModel: viewModel, mainWindowLifecycle: mainWindowLifecycle)
+            MenuBarContent(viewModel: viewModel, tmuxViewModel: tmuxViewModel, mainWindowLifecycle: mainWindowLifecycle)
         }
     }
 }

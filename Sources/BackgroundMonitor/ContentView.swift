@@ -4,55 +4,75 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var viewModel: JobsViewModel
+    @ObservedObject var tmuxViewModel: TmuxViewModel
+    @State private var showsTmux = false
     @State private var searchQuery = ""
     @FocusState private var isSearchFieldFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Text("BackgroundMonitor")
-                    .font(.system(size: 22, weight: .semibold))
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    Text("BackgroundMonitor")
+                        .font(.system(size: 22, weight: .semibold))
+                        .fixedSize()
+
+                    Text("\(displayedCount)")
+                        .font(.callout.monospacedDigit())
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+
+                    Picker("View", selection: $showsTmux) {
+                        Text("Processes").tag(false)
+                        Text("tmux").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                     .fixedSize()
+                }
 
-                Text("\(displayedJobs.count)")
-                    .font(.callout.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 12) {
+                    FilterField(text: $searchQuery, isFocused: $isSearchFieldFocused, showsTmux: showsTmux)
+                        .frame(minWidth: 120, maxWidth: .infinity)
 
-                FilterField(text: $searchQuery, isFocused: $isSearchFieldFocused)
-                    .frame(minWidth: 120, maxWidth: .infinity)
+                    if !showsTmux {
+                        Picker("Sort", selection: $viewModel.sortOrder) {
+                            ForEach(JobSortOrder.allCases) { order in
+                                Text(order.rawValue).tag(order)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .fixedSize()
+                        .help("Sort processes")
 
-                Picker("Sort", selection: $viewModel.sortOrder) {
-                    ForEach(JobSortOrder.allCases) { order in
-                        Text(order.rawValue).tag(order)
+                        Toggle("Show ignored", isOn: $viewModel.showsIgnored)
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                            .fixedSize()
+                            .help("Show processes you have ignored")
+
+                        Button {
+                            viewModel.showsIgnoreRules = true
+                        } label: {
+                            Image(systemName: "eye.slash")
+                                .frame(width: 18, height: 18)
+                        }
+                        .buttonStyle(.bordered)
+                        .help("Ignore rules")
+                        .accessibilityLabel("Ignore rules")
                     }
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .fixedSize()
-                .help("Sort processes")
-
-                Toggle("Show ignored", isOn: $viewModel.showsIgnored)
-                    .toggleStyle(.switch)
-                    .controlSize(.small)
-                    .fixedSize()
-                    .help("Show processes you have ignored")
-
-                Button {
-                    viewModel.showsIgnoreRules = true
-                } label: {
-                    Image(systemName: "eye.slash")
-                        .frame(width: 18, height: 18)
-                }
-                .buttonStyle(.bordered)
-                .help("Ignore rules")
-                .accessibilityLabel("Ignore rules")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
 
             Divider()
 
-            if displayedJobs.isEmpty {
+            if showsTmux {
+                TmuxSessionsView(viewModel: tmuxViewModel, searchQuery: searchQuery)
+            } else if displayedJobs.isEmpty {
                 EmptyStateView(
                     hasScanned: viewModel.hasScanned,
                     searchQuery: $searchQuery,
@@ -87,6 +107,10 @@ struct ContentView: View {
         }
     }
 
+    private var displayedCount: Int {
+        showsTmux ? tmuxViewModel.sessions.filter { $0.matchesSearchQuery(searchQuery) }.count : displayedJobs.count
+    }
+
     private var displayedJobs: [JobPresentation] {
         viewModel.visibleJobs.filter { $0.matchesSearchQuery(searchQuery) }
     }
@@ -95,6 +119,7 @@ struct ContentView: View {
 private struct FilterField: View {
     @Binding var text: String
     let isFocused: FocusState<Bool>.Binding
+    let showsTmux: Bool
 
     var body: some View {
         HStack(spacing: 6) {
@@ -102,10 +127,10 @@ private struct FilterField: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
 
-            TextField("Filter processes", text: $text)
+            TextField(showsTmux ? "Filter sessions" : "Filter processes", text: $text)
                 .textFieldStyle(.plain)
                 .focused(isFocused)
-                .accessibilityHint("Filters by name, command, folder, PID, or terminal.")
+                .accessibilityHint(showsTmux ? "Filters by session name or socket." : "Filters by name, command, folder, PID, or terminal.")
 
             if !text.isEmpty {
                 Button {
@@ -291,7 +316,7 @@ private struct JobRow: View {
     }
 }
 
-private struct Badge: View {
+struct Badge: View {
     let text: String
     var systemImage: String?
     var accessibilityLabel: String?

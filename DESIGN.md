@@ -111,7 +111,7 @@ Tonal layering, no shadows. Rows are a control background with a one-pixel separ
 ### Buttons
 - **Kill:** Bordered, destructive role, primary-text label with a red `stop.circle` symbol. Sends SIGTERM to the job and its children.
 - **More actions:** Borderless `ellipsis.circle` menu with Force Kill, Ignore or Unignore, Copy Command, and Show Folder in Finder. A job ignored only by a broader pattern offers Edit Ignore Rules… instead of Unignore.
-- **Header:** A segmented Name / PID sort picker, a "Show ignored" switch, and an `eye.slash` button that opens the Ignore Rules sheet.
+- **Header:** A Processes / tmux segmented picker beside the title. A second row holds the filter and, for processes, a segmented Name / PID sort picker, a "Show ignored" switch, and an `eye.slash` button that opens the Ignore Rules sheet.
 
 ### Ignore Rules Sheet
 A native sheet with a monospaced pattern field, an Add button, and a list of rules showing how many running jobs each one matches.
@@ -122,8 +122,11 @@ Compact capsules with secondary text and an optional SF Symbol. Badges are infor
 ### Job Rows
 8px corners, 10px padding, 8px list spacing, 14px scroll padding. Ignored jobs render at reduced opacity and carry an "Ignored" badge, so opacity is never the only cue.
 
+### tmux Sessions
+Session rows follow the job row spacing and colors. Show the session name, window count, attached or detached state, and socket path. Open is the visible row action and attaches in the default terminal. Session discovery errors offer Refresh.
+
 ### Menu Bar
-Native menu UI: Show Window, one submenu per job with Kill, Force Kill, and Ignore, then Quit.
+Native menu UI: Show Window, one submenu per job with Kill, Force Kill, and Ignore, a tmux Sessions submenu with one Open action per session, then Quit.
 
 ## 6. Do's and Don'ts
 

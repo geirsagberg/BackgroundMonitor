@@ -23,3 +23,9 @@ _Avoid_: filter, hidden, muted, excluded
 **Job presentation**:
 The view of a background job used by the window and menu bar. It adds the display name, command line, working folder, total memory, and ignored state to the discovered process facts, keeping each one as a separate fact.
 _Avoid_: row, view model row
+
+**tmux session**:
+A persistent collection of tmux windows managed by a local tmux server. Sessions are discovered through tmux sockets independently of background jobs. A socket path and tmux session ID identify a session; names may change or repeat across servers. Opening a session attaches a new terminal client without disconnecting existing clients.
+
+**Default terminal**:
+The macOS application associated with Unix executables. BackgroundMonitor opens its temporary `.command` script explicitly with this application, since the script extension can have a separate association.

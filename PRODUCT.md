@@ -10,7 +10,7 @@ BackgroundMonitor is for developers on macOS who start long-running commands fro
 
 ## Product Purpose
 
-BackgroundMonitor finds background jobs started from a shell, presents the useful facts about each one in a native macOS window and menu bar extra, and lets users act on each job directly. Success means a developer can understand what they left running at a glance, stop the right job with confidence, and hide the noise they never want to see.
+BackgroundMonitor finds background jobs started from a shell, presents the useful facts about each one in a native macOS window and menu bar extra, and lets users act on each job directly. It also lists local tmux sessions and opens them in the default terminal. Success means a developer can understand what they left running at a glance, stop the right job with confidence, and hide the noise they never want to see.
 
 ## Brand Personality
 

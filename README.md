@@ -21,6 +21,16 @@ Processes started by a listed process are grouped under it.
 - Includes a macOS menu bar extra. The Dock icon shows only while the window is open.
 - Uses a custom app icon built from the open-source Lucide `terminal` icon.
 
+## tmux sessions
+
+Switch to **tmux** to see local sessions, their window counts, and attached or detached state. **Open** attaches in the default macOS application for Unix executables without disconnecting existing clients. Sessions are also available from **tmux Sessions** in the menu bar.
+
+To use iTerm2, choose **iTerm2 > Make iTerm2 Default Term** in iTerm2. BackgroundMonitor respects that association; it does not change your default terminal.
+
+Install tmux separately, for example with `brew install tmux`. BackgroundMonitor checks `PATH`, `/opt/homebrew/bin`, `/usr/local/bin`, and `~/.local/bin`, and refreshes sessions every two seconds.
+
+Discovery covers sockets owned by you in `/tmp/tmux-<uid>` and `$TMUX_TMPDIR/tmux-<uid>`, plus the socket in an inherited `$TMUX` variable. This includes named servers in those directories. Arbitrary `tmux -S` paths outside those locations and sessions on remote hosts are not discovered automatically. GUI launches only see environment variables inherited by the app.
+
 ## Run
 
 ```sh
