@@ -7,6 +7,7 @@ struct ContentView: View {
     @ObservedObject var tmuxViewModel: TmuxViewModel
     @State private var showsTmux = false
     @State private var searchQuery = ""
+    @State private var isRefreshing = false
     @FocusState private var isSearchFieldFocused: Bool
 
     var body: some View {
@@ -30,6 +31,27 @@ struct ContentView: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                     .fixedSize()
+
+                    Button {
+                        let refreshesTmux = showsTmux
+                        isRefreshing = true
+                        Task {
+                            defer { isRefreshing = false }
+                            if refreshesTmux {
+                                await tmuxViewModel.refresh()
+                            } else {
+                                await viewModel.refresh()
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .frame(width: 18, height: 18)
+                    }
+                    .buttonStyle(.bordered)
+                    .keyboardShortcut("r", modifiers: .command)
+                    .disabled(isRefreshing)
+                    .help("Refresh (⌘R)")
+                    .accessibilityLabel("Refresh")
                 }
 
                 HStack(spacing: 12) {

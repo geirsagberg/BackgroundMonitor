@@ -17,7 +17,7 @@ Processes started by a listed process are grouped under it.
 - Kill sends `SIGTERM` to the process and its children. Force Kill sends `SIGKILL`.
 - Ignore hides every process with the same command line. Ignore rules also take glob patterns such as `*gitstatusd*`, matched against the full command line. Toggle "Show ignored" to see ignored processes.
 - Sorts by name or PID.
-- Refreshes every 2 seconds.
+- Refreshes every 2 seconds. Use the refresh button or ⌘R to refresh the current view immediately.
 - Includes a macOS menu bar extra. The Dock icon shows only while the window is open.
 - Uses a custom app icon built from the open-source Lucide `terminal` icon.
 
