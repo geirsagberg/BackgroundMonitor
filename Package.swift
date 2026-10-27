@@ -26,6 +26,10 @@ let package = Package(
         .testTarget(
             name: "BackgroundMonitorCoreTests",
             dependencies: ["BackgroundMonitorCore"]
+        ),
+        .testTarget(
+            name: "BackgroundMonitorTests",
+            dependencies: ["BackgroundMonitor"]
         )
     ]
 )

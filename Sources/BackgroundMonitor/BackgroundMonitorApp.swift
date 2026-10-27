@@ -14,6 +14,8 @@ struct BackgroundMonitorApp: App {
                 .background(MainWindowLifecycleObserver(lifecycle: mainWindowLifecycle))
         }
         .defaultSize(width: 820, height: 520)
+        // The content expands freely; only its minimum size should constrain the window.
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(after: .textEditing) {

@@ -75,7 +75,7 @@ final class JobsViewModel: ObservableObject {
         if scannedJobs != jobs {
             jobs = scannedJobs
         }
-        hasScanned = true
+        if !hasScanned { hasScanned = true }
     }
 
     func kill(_ presentation: JobPresentation, force: Bool = false) {
