@@ -32,13 +32,14 @@ final class TmuxViewModel: ObservableObject {
         case .success(let snapshot):
             if sessions != snapshot.sessions { sessions = snapshot.sessions }
             executablePath = snapshot.executablePath
-            scanError = nil
+            if scanError != nil { scanError = nil }
         case .failure(let error):
-            sessions = []
+            if !sessions.isEmpty { sessions = [] }
             executablePath = nil
-            scanError = error.localizedDescription
+            let message = error.localizedDescription
+            if scanError != message { scanError = message }
         }
-        hasScanned = true
+        if !hasScanned { hasScanned = true }
     }
 
     func open(_ session: TmuxSession) {
