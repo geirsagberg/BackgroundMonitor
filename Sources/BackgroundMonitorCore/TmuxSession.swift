@@ -30,4 +30,15 @@ public struct TmuxSession: Identifiable, Equatable, Sendable {
             .joined(separator: " ")
         return "#!/bin/sh\n/bin/rm -f -- \"$0\"\nunset TMUX\nexec \(arguments)\n"
     }
+
+    /// Ends the session and every window in it. A session that is already gone counts as killed.
+    public func kill(executablePath: String) throws {
+        guard let result = try TmuxCommand.run(executablePath, ["-N", "-S", socketPath, "kill-session", "-t", sessionID]) else {
+            throw TmuxError.commandFailed("tmux did not respond while killing \(name).")
+        }
+        if result.status == 0 || TmuxCommand.isMissingServer(result.output) || result.output.contains("can't find session") {
+            return
+        }
+        throw TmuxError.commandFailed(result.output.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
 }

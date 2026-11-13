@@ -25,7 +25,7 @@ The view of a background job used by the window and menu bar. It adds the displa
 _Avoid_: row, view model row
 
 **tmux session**:
-A persistent collection of tmux windows managed by a local tmux server. Sessions are discovered through tmux sockets independently of background jobs. A socket path and tmux session ID identify a session; names may change or repeat across servers. Opening a session attaches a new terminal client without disconnecting existing clients.
+A persistent collection of tmux windows managed by a local tmux server. Sessions are discovered through tmux sockets independently of background jobs. A socket path and tmux session ID identify a session; names may change or repeat across servers. Opening a session attaches a new terminal client without disconnecting existing clients. Killing a session ends it and all its windows.
 
 **Default terminal**:
 The macOS application associated with Unix executables. BackgroundMonitor opens its temporary `.command` script explicitly with this application, since the script extension can have a separate association.

@@ -8,7 +8,7 @@ public struct TmuxSnapshot: Sendable {
 public enum TmuxError: LocalizedError {
     case notInstalled
     case invalidOutput
-    case scanFailed(String)
+    case commandFailed(String)
 
     public var errorDescription: String? {
         switch self {
@@ -16,7 +16,7 @@ public enum TmuxError: LocalizedError {
             return "Install tmux, then refresh."
         case .invalidOutput:
             return "tmux returned an unreadable session list."
-        case .scanFailed(let message):
+        case .commandFailed(let message):
             return message
         }
     }
@@ -37,32 +37,17 @@ public enum TmuxScanner {
     static func scan(executablePath executable: String, socketPaths: [String]) throws -> TmuxSnapshot {
         var sessions: [TmuxSession] = []
         for socket in socketPaths {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: executable)
-            process.environment = ProcessInfo.processInfo.environment.merging(["LC_ALL": "C"]) { _, value in value }
-            process.arguments = ["-N", "-S", socket, "list-sessions", "-F", format]
-            let output = Pipe()
-            process.standardOutput = output
-            process.standardError = output
-            try process.run()
-            let timeout = DispatchWorkItem { if process.isRunning { process.terminate() } }
-            DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 3, execute: timeout)
-            let data = output.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-            timeout.cancel()
-            if process.terminationReason == .uncaughtSignal {
-                throw TmuxError.scanFailed("tmux did not respond while listing sessions.")
+            guard let result = try TmuxCommand.run(executable, ["-N", "-S", socket, "list-sessions", "-F", format]) else {
+                throw TmuxError.commandFailed("tmux did not respond while listing sessions.")
             }
-            let text = String(decoding: data, as: UTF8.self)
-            guard process.terminationStatus == 0 else {
+            guard result.status == 0 else {
                 // Socket files may outlive their server, or disappear during a refresh.
-                if text.contains("Connection refused") || text.contains("No such file or directory")
-                    || text.contains("no server running") || text.contains("no sessions") {
+                if TmuxCommand.isMissingServer(result.output) || result.output.contains("no sessions") {
                     continue
                 }
-                throw TmuxError.scanFailed(text.trimmingCharacters(in: .whitespacesAndNewlines))
+                throw TmuxError.commandFailed(result.output.trimmingCharacters(in: .whitespacesAndNewlines))
             }
-            sessions += try parse(text, socketPath: socket)
+            sessions += try parse(result.output, socketPath: socket)
         }
 
         return TmuxSnapshot(executablePath: executable, sessions: sessions.sorted {
@@ -115,5 +100,31 @@ public enum TmuxScanner {
             return TmuxSession(socketPath: socketPath, sessionID: String(fields[0]),
                                name: String(fields[3]), windowCount: windows, attachedClients: attached)
         }
+    }
+}
+
+enum TmuxCommand {
+    /// Runs tmux and returns its exit status and combined output, or nil when it does not respond in time.
+    static func run(_ executable: String, _ arguments: [String]) throws -> (status: Int32, output: String)? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: executable)
+        process.environment = ProcessInfo.processInfo.environment.merging(["LC_ALL": "C"]) { _, value in value }
+        process.arguments = arguments
+        let output = Pipe()
+        process.standardOutput = output
+        process.standardError = output
+        try process.run()
+        let timeout = DispatchWorkItem { if process.isRunning { process.terminate() } }
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 3, execute: timeout)
+        let data = output.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        timeout.cancel()
+        if process.terminationReason == .uncaughtSignal { return nil }
+        return (process.terminationStatus, String(decoding: data, as: UTF8.self))
+    }
+
+    static func isMissingServer(_ output: String) -> Bool {
+        output.contains("Connection refused") || output.contains("No such file or directory")
+            || output.contains("no server running")
     }
 }

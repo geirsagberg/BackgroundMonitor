@@ -38,8 +38,11 @@ struct MenuBarContent: View {
                 Text(tmuxViewModel.hasScanned ? "No tmux sessions" : "Looking for sessions…")
             } else {
                 ForEach(tmuxViewModel.sessions) { session in
-                    Button("Open \(session.name)") { tmuxViewModel.open(session) }
-                        .help(session.socketPath)
+                    Menu(session.name) {
+                        Button("Open") { tmuxViewModel.open(session) }
+                        Button("Kill", role: .destructive) { tmuxViewModel.kill(session) }
+                    }
+                    .help(session.socketPath)
                 }
             }
         }

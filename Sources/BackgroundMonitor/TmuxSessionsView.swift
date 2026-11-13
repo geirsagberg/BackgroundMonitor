@@ -54,6 +54,17 @@ struct TmuxSessionsView: View {
                                 }
                                 .help("Attach to \(session.name) in your default terminal")
                                 .accessibilityLabel("Open tmux session \(session.name)")
+
+                                Button(role: .destructive) { viewModel.kill(session) } label: {
+                                    // Only the icon is red; red text on a bordered button is hard to read in dark mode.
+                                    Label {
+                                        Text("Kill")
+                                    } icon: {
+                                        Image(systemName: "stop.circle").foregroundStyle(.red)
+                                    }
+                                }
+                                .help("End \(session.name) and all its windows")
+                                .accessibilityLabel("Kill tmux session \(session.name)")
                             }
                             .padding(10)
                             .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .controlBackgroundColor)))

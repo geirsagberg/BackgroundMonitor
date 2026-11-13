@@ -23,7 +23,7 @@ Processes started by a listed process are grouped under it.
 
 ## tmux sessions
 
-Switch to **tmux** to see local sessions, their window counts, and attached or detached state. **Open** attaches in the default macOS application for Unix executables without disconnecting existing clients. Sessions are also available from **tmux Sessions** in the menu bar.
+Switch to **tmux** to see local sessions, their window counts, and attached or detached state. **Open** attaches in the default macOS application for Unix executables without disconnecting existing clients. **Kill** ends the session and all its windows. Sessions are also available from **tmux Sessions** in the menu bar.
 
 To use iTerm2, choose **iTerm2 > Make iTerm2 Default Term** in iTerm2. BackgroundMonitor respects that association; it does not change your default terminal.
 

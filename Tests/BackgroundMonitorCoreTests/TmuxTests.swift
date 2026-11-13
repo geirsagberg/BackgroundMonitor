@@ -23,6 +23,21 @@ final class TmuxTests: XCTestCase {
         XCTAssertEqual(renamed.name, "renamed")
     }
 
+    func testKillsOnlyTheChosenSessionAndToleratesRepeats() throws {
+        guard let executable = TmuxScanner.executablePath(environment: ProcessInfo.processInfo.environment) else {
+            throw XCTSkip("tmux is not installed")
+        }
+        let socket = "/tmp/bgm-test-\(UUID().uuidString)"
+        defer { _ = try? run(executable, ["-S", socket, "kill-server"]) }
+        XCTAssertEqual(try run(executable, ["-f", "/dev/null", "-S", socket, "new-session", "-d", "-s", "doomed", "/bin/sleep", "60"]), 0)
+        XCTAssertEqual(try run(executable, ["-S", socket, "new-session", "-d", "-s", "kept", "/bin/sleep", "60"]), 0)
+        let doomed = try XCTUnwrap(TmuxScanner.scan(executablePath: executable, socketPaths: [socket])
+            .sessions.first { $0.name == "doomed" })
+        try doomed.kill(executablePath: executable)
+        XCTAssertEqual(try TmuxScanner.scan(executablePath: executable, socketPaths: [socket]).sessions.map(\.name), ["kept"])
+        XCTAssertNoThrow(try doomed.kill(executablePath: executable))
+    }
+
     func testFindsInheritedSocketPathsContainingCommas() {
         let paths = TmuxScanner.socketPaths(environment: ["TMUX": "/tmp/custom,socket,123,0"])
         XCTAssertTrue(paths.contains(URL(fileURLWithPath: "/tmp/custom,socket").resolvingSymlinksInPath().path))

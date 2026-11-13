@@ -42,6 +42,19 @@ final class TmuxViewModel: ObservableObject {
         if !hasScanned { hasScanned = true }
     }
 
+    func kill(_ session: TmuxSession) {
+        guard let executablePath else { return }
+        Task {
+            let result = await Task.detached(priority: .userInitiated) {
+                Result { try session.kill(executablePath: executablePath) }
+            }.value
+            if case .failure(let error) = result {
+                alertMessage = AlertMessage(title: "Could not kill \(session.name)", message: error.localizedDescription)
+            }
+            await refresh()
+        }
+    }
+
     func open(_ session: TmuxSession) {
         guard let executablePath else { return }
         let fileManager = FileManager.default

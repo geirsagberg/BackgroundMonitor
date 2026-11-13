@@ -123,10 +123,10 @@ Compact capsules with secondary text and an optional SF Symbol. Badges are infor
 8px corners, 10px padding, 8px list spacing, 14px scroll padding. Ignored jobs render at reduced opacity and carry an "Ignored" badge, so opacity is never the only cue.
 
 ### tmux Sessions
-Session rows follow the job row spacing and colors. Show the session name, window count, attached or detached state, and socket path. Open is the visible row action and attaches in the default terminal. Session discovery errors offer Refresh.
+Session rows follow the job row spacing and colors. Show the session name, window count, attached or detached state, and socket path. Open and Kill are the visible row actions. Open attaches in the default terminal. Kill ends the session and uses the same style as the job Kill button. Session discovery errors offer Refresh.
 
 ### Menu Bar
-Native menu UI: Show Window, one submenu per job with Kill, Force Kill, and Ignore, a tmux Sessions submenu with one Open action per session, then Quit.
+Native menu UI: Show Window, one submenu per job with Kill, Force Kill, and Ignore, a tmux Sessions submenu with one submenu per session holding Open and Kill, then Quit.
 
 ## 6. Do's and Don'ts
 
